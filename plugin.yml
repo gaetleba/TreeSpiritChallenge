@@ -1,0 +1,3 @@
+name: TreeSpirit
+main: com.warrows.plugins.TreeSpirit.TreeSpiritPlugin
+version: 0.1
