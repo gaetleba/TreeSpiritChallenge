@@ -5,6 +5,7 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
@@ -17,7 +18,7 @@ public class PlayerWoodListener implements Listener
 	{
 		ItemStack item = event.getItem().getItemStack();
 		if (item.getType() != Material.LOG
-				&& event.getItem().getItemStack().getType() != Material.SAPLING)
+				&& event.getItem().getItemStack().getType() != Material.SAPLING && item.getType() != Material.LEAVES)
 		{
 			return;
 		}
@@ -40,7 +41,7 @@ public class PlayerWoodListener implements Listener
 	{
 		ItemStack item = event.getItemDrop().getItemStack();
 		if (item.getType() != Material.LOG
-				&& item.getType() != Material.SAPLING)
+				&& item.getType() != Material.SAPLING && item.getType() != Material.LEAVES)
 		{
 			return;
 		}
@@ -56,7 +57,7 @@ public class PlayerWoodListener implements Listener
 	{
 		Block item = event.getBlock();
 		if (item.getType() != Material.LOG
-				&& item.getType() != Material.SAPLING)
+				&& item.getType() != Material.SAPLING && item.getType() != Material.LEAVES)
 		{
 			return;
 		}
@@ -68,5 +69,23 @@ public class PlayerWoodListener implements Listener
 			tree.addToBody(item);
 		else
 			event.setCancelled(true);
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public void onPlayerBlockBreak(BlockBreakEvent event)
+	{
+		Block block = event.getBlock();
+		if (block.getType() != Material.LOG
+				&& block.getType() != Material.SAPLING && block.getType() != Material.LEAVES)
+		{
+			return;
+		}
+
+		Player player = event.getPlayer();
+		GreatTree tree = TreeSpiritPlugin.getGreatTree(player);
+
+		if (tree.isInBody(block))
+			for (ItemStack item : block.getDrops())
+			tree.addDrop(item);
 	}
 }

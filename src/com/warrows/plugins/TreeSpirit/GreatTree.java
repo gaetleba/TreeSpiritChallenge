@@ -91,6 +91,7 @@ public class GreatTree
 	public void addToBody(Block block)
 	{
 		body.put(block.getLocation(), block);
+		TreeSpiritPlugin.addTreeBlock(block,this);
 	}
 
 	public double getDistanceAllowed()

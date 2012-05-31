@@ -42,11 +42,18 @@ public class TreeSpiritPlugin extends JavaPlugin
 				new PlayerWoodListener(), this);
 		getServer().getPluginManager().registerEvents(
 				new PlayerMoveListener(), this);
+		getServer().getPluginManager().registerEvents(
+				new TreeLife(), this);
 
 		greatTreesByBlock = new HashMap<Block, GreatTree>();
 		greatTreesByPlayer = new HashMap<Player, GreatTree>();
 
 		log.info("TreeSpirit enabled");
+	}
+	
+	public static void addTreeBlock(Block block, GreatTree tree)
+	{
+		greatTreesByBlock.put(block, tree);
 	}
 	
 	public static boolean addGreatTree(Block heart, Player player)
@@ -62,6 +69,11 @@ public class TreeSpiritPlugin extends JavaPlugin
 	public static GreatTree getGreatTree(Player player)
 	{
 		return greatTreesByPlayer.get(player);
+	}
+	
+	public static GreatTree getGreatTree(Block block)
+	{
+		return greatTreesByBlock.get(block);
 	}
 
 	@Override
