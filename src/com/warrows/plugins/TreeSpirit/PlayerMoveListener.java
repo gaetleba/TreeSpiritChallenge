@@ -13,6 +13,8 @@ public class PlayerMoveListener implements Listener
 	{
 		Player player = event.getPlayer();
 		GreatTree tree = TreeSpiritPlugin.getGreatTree(player);
+		if (tree == null)
+			return;
 
 		if (tree.isAtProximity(event.getTo().getBlock()))
 		{
