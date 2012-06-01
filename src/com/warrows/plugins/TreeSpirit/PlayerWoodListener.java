@@ -18,7 +18,8 @@ public class PlayerWoodListener implements Listener
 	{
 		ItemStack item = event.getItem().getItemStack();
 		if (item.getType() != Material.LOG
-				&& event.getItem().getItemStack().getType() != Material.SAPLING && item.getType() != Material.LEAVES)
+				&& event.getItem().getItemStack().getType() != Material.SAPLING
+				&& item.getType() != Material.LEAVES)
 		{
 			return;
 		}
@@ -41,7 +42,8 @@ public class PlayerWoodListener implements Listener
 	{
 		ItemStack item = event.getItemDrop().getItemStack();
 		if (item.getType() != Material.LOG
-				&& item.getType() != Material.SAPLING && item.getType() != Material.LEAVES)
+				&& item.getType() != Material.SAPLING
+				&& item.getType() != Material.LEAVES)
 		{
 			return;
 		}
@@ -57,10 +59,9 @@ public class PlayerWoodListener implements Listener
 	{
 		Block item = event.getBlock();
 		if (item.getType() != Material.LOG
-				&& item.getType() != Material.SAPLING && item.getType() != Material.LEAVES)
-		{
+				&& item.getType() != Material.SAPLING
+				&& item.getType() != Material.LEAVES)
 			return;
-		}
 
 		Player player = event.getPlayer();
 		GreatTree tree = TreeSpiritPlugin.getGreatTree(player);
@@ -70,22 +71,32 @@ public class PlayerWoodListener implements Listener
 		else
 			event.setCancelled(true);
 	}
-	
+
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBlockBreak(BlockBreakEvent event)
 	{
 		Block block = event.getBlock();
 		if (block.getType() != Material.LOG
-				&& block.getType() != Material.SAPLING && block.getType() != Material.LEAVES)
-		{
+				&& block.getType() != Material.SAPLING
+				&& block.getType() != Material.LEAVES)
 			return;
-		}
 
 		Player player = event.getPlayer();
 		GreatTree tree = TreeSpiritPlugin.getGreatTree(player);
 
 		if (tree.isInBody(block))
+		{
+			if (block.getType() == Material.LEAVES
+					&& player.getItemInHand().getType().equals(Material.SHEARS))
+			{
+				ItemStack item = new ItemStack (block.getType(), 1, block.getData());
+				item = block.getWorld().dropItemNaturally(block.getLocation(), item).getItemStack();
+				tree.addDrop(item);
+				block.setType(Material.AIR);
+				event.setCancelled(true);
+			}
 			for (ItemStack item : block.getDrops())
-			tree.addDrop(item);
+				tree.addDrop(item);
+		}
 	}
 }
