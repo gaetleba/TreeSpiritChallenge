@@ -90,7 +90,7 @@ public class PlayerWoodListener implements Listener
 	{
 		byte type = heart.getData();
 
-		clearInventory(player);
+		player.getInventory().clear();
 		player.getInventory().addItem(new ItemStack(Material.LOG, 5, type));
 		player.getInventory().addItem(new ItemStack(Material.SAPLING, 2, type));
 
@@ -98,17 +98,6 @@ public class PlayerWoodListener implements Listener
 		new GreatTree(heart, player, type);
 
 		player.teleport(heart.getLocation().add(0, 1, 0));
-	}
-
-	private void clearInventory(Player player)
-	{
-		player.getInventory().clear();
-		ItemStack[] noArmor = new ItemStack[4];
-		noArmor[0] = new ItemStack(0);
-		noArmor[1] = new ItemStack(0);
-		noArmor[2] = new ItemStack(0);
-		noArmor[3] = new ItemStack(0);
-		player.getInventory().setArmorContents(noArmor);
 	}
 
 	@EventHandler(ignoreCancelled = true)

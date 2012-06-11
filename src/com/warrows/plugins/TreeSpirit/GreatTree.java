@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -50,11 +51,6 @@ public class GreatTree implements Serializable
 	public String getPlayerName()
 	{
 		return playerName;
-	}
-
-	public static void addNewPlayer(Player player)
-	{
-		newPlayersNames.add(player.getName());
 	}
 
 	public static boolean isNew(Player player)
@@ -156,14 +152,6 @@ public class GreatTree implements Serializable
 		for (BlockFace direction : directions)
 			if (isInBody(block.getRelative(direction)))
 				return true;
-		/*
-		 * A reactiver si on veux que le joueur puisse placer ses blocs plus bas
-		 * sans en placer en dessous. block = block.getRelative(BlockFace.DOWN);
-		 * BlockFace[] directionsUp = { BlockFace.NORTH, BlockFace.SOUTH,
-		 * BlockFace.WEST, BlockFace.EAST }; for (BlockFace direction :
-		 * directionsUp) if (isInBody(block.getRelative(direction))) return
-		 * true;
-		 */
 		return false;
 	}
 
@@ -200,6 +188,7 @@ public class GreatTree implements Serializable
 			removeFromBody(sb.getBukkitBlock());
 		greatTreesByPlayerName.remove(playerName);
 		TreeSpiritPlugin.getServerInstance().getPlayer(playerName).damage(200);
+		heart.getBukkitBlock().setType(Material.OBSIDIAN);
 	}
 
 	public void removeFromBody(Block block)
@@ -224,5 +213,26 @@ public class GreatTree implements Serializable
 		score--;
 		if (heart.equals(new SBlock(block)))
 			destroy();
+	}
+
+	public static boolean hasStarted(Player player)
+	{
+		return (greatTreesByPlayerName.keySet().contains(player.getName()) || newPlayersNames
+				.contains(player.getName()));
+	}
+
+	public static void start(Player player)
+	{
+		player.setAllowFlight(true);
+		player.getInventory().clear();
+		newPlayersNames.add(player.getName());
+		player.getInventory().addItem(
+				new ItemStack(Material.LOG, 1, (short) 0, (byte) 0));
+		player.getInventory().addItem(
+				new ItemStack(Material.LOG, 1, (short) 0, (byte) 1));
+		player.getInventory().addItem(
+				new ItemStack(Material.LOG, 1, (short) 0, (byte) 2));
+		player.getInventory().addItem(
+				new ItemStack(Material.LOG, 1, (short) 0, (byte) 3));
 	}
 }

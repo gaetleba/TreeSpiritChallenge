@@ -31,6 +31,7 @@ public class TreeSpiritPlugin extends JavaPlugin
 	@Override
 	public void onEnable()
 	{
+		/* get basis and warn about loading */
 		server = this.getServer();
 		log = this.getLogger();
 		log.info("TreeSpirit loading");
@@ -39,6 +40,7 @@ public class TreeSpiritPlugin extends JavaPlugin
 		if (!directory.exists())
 			directory.mkdir();
 
+		/* get config */
 		configFile = new File(directory + File.separator + "config.yml");
 		if (!configFile.exists())
 		{
@@ -46,6 +48,18 @@ public class TreeSpiritPlugin extends JavaPlugin
 			saveConfig();
 		}
 
+		// load listeners
+		getServer().getPluginManager().registerEvents(new PlayerWoodListener(),
+				this);
+		getServer().getPluginManager().registerEvents(new PlayerMoveListener(),
+				this);
+		getServer().getPluginManager().registerEvents(new TreeLife(), this);
+		
+		/* register commands */
+		Commands commands = new Commands();
+		getCommand("treespirit").setExecutor(commands);
+
+		/* load datas from files */
 		try
 		{
 			File treesFile = new File(directory, "trees.obj");
@@ -58,7 +72,7 @@ public class TreeSpiritPlugin extends JavaPlugin
 						new FileInputStream(treesFile)).readObject();
 			else
 				trees = new HashSet<GreatTree>();
-			
+
 			if (newPlayersFile.exists())
 				newPlayers = (HashSet<String>) new ObjectInputStream(
 						new FileInputStream(newPlayersFile)).readObject();
@@ -77,15 +91,6 @@ public class TreeSpiritPlugin extends JavaPlugin
 		{
 			e.printStackTrace();
 		}
-
-		// Enregistrement des listeners
-		getServer().getPluginManager().registerEvents(
-				new PlayerSpawnListener(), this);
-		getServer().getPluginManager().registerEvents(new PlayerWoodListener(),
-				this);
-		getServer().getPluginManager().registerEvents(new PlayerMoveListener(),
-				this);
-		getServer().getPluginManager().registerEvents(new TreeLife(), this);
 
 		log.info("TreeSpirit enabled");
 	}
