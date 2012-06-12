@@ -12,6 +12,8 @@ import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.inventory.ItemStack;
 
+import com.warrows.plugins.TreeSpirit.util.Text;
+
 public class PlayerWoodListener implements Listener
 {
 	@EventHandler(ignoreCancelled = true)
@@ -107,7 +109,15 @@ public class PlayerWoodListener implements Listener
 		GreatTree tree = GreatTree.getGreatTree(block);
 
 		if (tree == null)
+		{
+			if (TreeSpiritPlugin.getConfigInstance().getBoolean(
+					"force-to-play-as-a-tree"))
+			{
+				event.setCancelled(true);
+				event.getPlayer().sendMessage(Text.getMessage("not-a-tree"));
+			}
 			return;
+		}
 
 		if (block.getType() != Material.LOG
 				&& block.getType() != Material.SAPLING
@@ -115,13 +125,16 @@ public class PlayerWoodListener implements Listener
 				&& block.getType() != Material.GLOWSTONE)
 			return;
 
-		tree.removeFromBody(block);
+		destroyBlock(tree, block, event);
+	}
 
+	private void destroyBlock(GreatTree tree, Block block, BlockBreakEvent event)
+	{
+		tree.removeFromBody(block);
 		if (block.getType() == Material.LEAVES
 				&& event.getPlayer().getItemInHand().getType()
 						.equals(Material.SHEARS))
 		{
-			TreeSpiritPlugin.log.info("c");
 			ItemStack item = new ItemStack(block.getType(), 1, block.getData());
 			item = block.getWorld()
 					.dropItemNaturally(block.getLocation(), item)

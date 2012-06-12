@@ -14,6 +14,8 @@ import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import com.warrows.plugins.TreeSpirit.util.Text;
+
 /**
  * Loads Plugin and manages Data/Permissions
  * 
@@ -22,7 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class TreeSpiritPlugin extends JavaPlugin
 {
 	protected static Logger			log;
-	protected static File			directory;
+	private static File				directory;
 	private static Server			server;
 	private File					configFile;
 	private static Configuration	config;
@@ -35,29 +37,34 @@ public class TreeSpiritPlugin extends JavaPlugin
 		server = this.getServer();
 		log = this.getLogger();
 		log.info("TreeSpirit loading");
-
+		
 		directory = getDataFolder();
 		if (!directory.exists())
 			directory.mkdir();
-
+		
 		/* get config */
-		configFile = new File(directory + File.separator + "config.yml");
+		configFile = new File(directory + File.separator
+				+ "config.yml");
 		if (!configFile.exists())
 		{
 			getConfig().options().copyDefaults(true);
 			saveConfig();
 		}
-
-		// load listeners
+		config = getConfig();
+		
+		/* load listeners*/
 		getServer().getPluginManager().registerEvents(new PlayerWoodListener(),
 				this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(),
 				this);
 		getServer().getPluginManager().registerEvents(new TreeLife(), this);
-		
+
 		/* register commands */
 		Commands commands = new Commands();
 		getCommand("treespirit").setExecutor(commands);
+		
+		/*load language*/
+		Text.load((String) config.get("language"));
 
 		/* load datas from files */
 		try
@@ -119,6 +126,11 @@ public class TreeSpiritPlugin extends JavaPlugin
 		}
 		saveConfig();
 		log.info("TreeSpirit disabled");
+	}
+
+	public static File getDirectory()
+	{
+		return directory;
 	}
 
 	public static Server getServerInstance()
