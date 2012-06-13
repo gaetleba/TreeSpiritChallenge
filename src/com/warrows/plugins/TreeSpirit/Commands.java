@@ -17,7 +17,10 @@ public class Commands implements CommandExecutor
 			return false;
 		if (sender instanceof Player)
 		{
+			if ("start".equals(args[0]))
 				return start((Player) sender);
+			if ("stop".equals(args[0]))
+				return stop((Player) sender);
 		}
 		return false;
 	}
@@ -35,5 +38,10 @@ public class Commands implements CommandExecutor
 		else
 			player.sendMessage(Text.getMessage("cannot-start"));
 		return result;
+	}
+
+	private boolean stop(Player player)
+	{
+		return GreatTree.destroy(GreatTree.getGreatTree(player).getHeart());
 	}
 }

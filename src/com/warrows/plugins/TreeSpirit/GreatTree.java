@@ -14,14 +14,16 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import com.warrows.plugins.TreeSpirit.util.SBlock;
+import com.warrows.plugins.TreeSpirit.util.Text;
 
 public class GreatTree implements Serializable
 {
-	private static final long					serialVersionUID		= 6368304605618553997L;
+	private static final long					serialVersionUID	= -6091386416369849135L;
 
-	private static HashMap<SBlock, GreatTree>	greatTreesByBlock		= new HashMap<SBlock, GreatTree>();
-	private static HashMap<String, GreatTree>	greatTreesByPlayerName	= new HashMap<String, GreatTree>();
-	private static HashSet<String>				newPlayersNames			= new HashSet<String>();
+	private static HashMap<SBlock, GreatTree>	greatTreesByBlock;
+	private static HashMap<String, GreatTree>	greatTreesByPlayerName;
+	private static HashSet<String>				newPlayersNames;
+	private static HashSet<SBlock>				hearts;
 
 	private HashSet<ItemStack>					drops;
 	private int									score;
@@ -29,23 +31,48 @@ public class GreatTree implements Serializable
 	private HashSet<SBlock>						body;
 	private String								playerName;
 
+	/**
+	 * Constructeur
+	 * 
+	 * @param heart
+	 * @param player
+	 * @param type
+	 */
+	public GreatTree(Block heart, Player player, byte type)
+	{
+		this.drops = new HashSet<ItemStack>();
+		this.heart = new SBlock(heart);
+		this.body = new HashSet<SBlock>();
+		this.body.add(this.heart);
+		this.playerName = player.getName();
+		score = 1;
+		greatTreesByBlock.put(this.heart, this);
+		greatTreesByPlayerName.put(player.getName(), this);
+		newPlayersNames.remove(player.getName());
+		hearts.add(this.heart);
+	}
+
+	/**
+	 * Methode permettant de charger des données existantes lors du lancement du
+	 * serveur
+	 * 
+	 * @param greatTrees
+	 * @param newPlayers
+	 * @param savedHearts
+	 */
 	public static void initialize(HashSet<GreatTree> greatTrees,
-			HashSet<String> newPlayers)
+			HashSet<String> newPlayers, HashSet<SBlock> savedHearts)
 	{
 		greatTreesByBlock = new HashMap<SBlock, GreatTree>();
 		greatTreesByPlayerName = new HashMap<String, GreatTree>();
 		for (GreatTree tree : greatTrees)
 		{
-			for (SBlock b : tree.getBlocks())
+			for (SBlock b : tree.body)
 				greatTreesByBlock.put(b, tree);
 			greatTreesByPlayerName.put(tree.getPlayerName(), tree);
 		}
 		newPlayersNames = newPlayers;
-	}
-
-	public Set<SBlock> getBlocks()
-	{
-		return body;
+		hearts = savedHearts;
 	}
 
 	public String getPlayerName()
@@ -63,14 +90,25 @@ public class GreatTree implements Serializable
 		HashSet<GreatTree> trees = new HashSet<GreatTree>();
 		for (GreatTree tree : greatTreesByPlayerName.values())
 		{
+			tree.drops.clear();
 			trees.add(tree);
 		}
 		return trees;
 	}
 
+	public static boolean isHeart(Block block)
+	{
+		return hearts.contains(new SBlock(block));
+	}
+
 	public static HashSet<String> saveNewPlayers()
 	{
 		return newPlayersNames;
+	}
+
+	public static HashSet<SBlock> saveHearts()
+	{
+		return hearts;
 	}
 
 	public static GreatTree getGreatTree(Player player)
@@ -80,23 +118,7 @@ public class GreatTree implements Serializable
 
 	public static GreatTree getGreatTree(Block block)
 	{
-		for (SBlock sb : greatTreesByBlock.keySet())
-			if (new SBlock(block).equals(sb))
-				return greatTreesByBlock.get(sb);
-		return null;
-	}
-
-	public GreatTree(Block heart, Player player, byte type)
-	{
-		this.drops = new HashSet<ItemStack>();
-		this.heart = new SBlock(heart);
-		this.body = new HashSet<SBlock>();
-		this.body.add(this.heart);
-		this.playerName = player.getName();
-		score = 1;
-		greatTreesByBlock.put(this.heart, this);
-		greatTreesByPlayerName.put(player.getName(), this);
-		newPlayersNames.remove(player.getName());
+		return greatTreesByBlock.get(new SBlock(block));
 	}
 
 	public int getScore()
@@ -117,11 +139,6 @@ public class GreatTree implements Serializable
 				return true;
 		}
 		return false;
-	}
-
-	public Block getHeart()
-	{
-		return heart.getBukkitBlock();
 	}
 
 	public boolean hasDrop(ItemStack item)
@@ -177,18 +194,38 @@ public class GreatTree implements Serializable
 		score++;
 	}
 
-	public void destroy()
+	public static boolean destroy(Block block)
 	{
-		Set<SBlock> a = new HashSet<SBlock>();
-		for (SBlock sb : body)
+		GreatTree tree = getGreatTree(block);
+		if (tree == null)
+			return false;
+		Set<Block> set = new HashSet<Block>();
+		for (SBlock sb : tree.body)
 		{
-			a.add(sb);
+			set.add(sb.getBukkitBlock());
 		}
-		for (SBlock sb : a)
-			removeFromBody(sb.getBukkitBlock());
-		greatTreesByPlayerName.remove(playerName);
-		TreeSpiritPlugin.getServerInstance().getPlayer(playerName).damage(200);
-		heart.getBukkitBlock().setType(Material.OBSIDIAN);
+		boolean destroy = TreeSpiritPlugin.getConfigInstance().getBoolean(
+				"destroy-when-loose");
+		for (Block b : set)
+		{
+			if (hearts.contains(new SBlock(b)))
+			{
+				b.setType(Material.OBSIDIAN);
+				hearts.remove(new SBlock(b));
+			} else
+			{
+				if (destroy)
+					b.breakNaturally();
+			}
+			tree.removeFromBody(b);
+		}
+		greatTreesByPlayerName.remove(tree.playerName);
+		Player player = TreeSpiritPlugin.getServerInstance().getPlayer(
+				tree.playerName);
+		player.sendMessage(Text.getMessage("heart-destroyed"));
+		player.getInventory().clear();
+		player.damage(200);
+		return true;
 	}
 
 	public void removeFromBody(Block block)
@@ -211,8 +248,6 @@ public class GreatTree implements Serializable
 		body.remove(b);
 		addDrops(block.getDrops());
 		score--;
-		if (heart.equals(new SBlock(block)))
-			destroy();
 	}
 
 	public static boolean hasStarted(Player player)
@@ -234,5 +269,10 @@ public class GreatTree implements Serializable
 				new ItemStack(Material.LOG, 1, (short) 0, (byte) 2));
 		player.getInventory().addItem(
 				new ItemStack(Material.LOG, 1, (short) 0, (byte) 3));
+	}
+
+	public Block getHeart()
+	{
+		return heart.getBukkitBlock();
 	}
 }

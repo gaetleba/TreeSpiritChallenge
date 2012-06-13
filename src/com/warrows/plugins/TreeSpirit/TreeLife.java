@@ -4,23 +4,15 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.BlockIgniteEvent;
+import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockFadeEvent;
 import org.bukkit.event.block.LeavesDecayEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.world.StructureGrowEvent;
 
 public class TreeLife implements Listener
 {
-	@EventHandler(ignoreCancelled = true)
-	public void onLeavesDecayEvent(LeavesDecayEvent event)
-	{
-		Block block = event.getBlock();
-		GreatTree tree = GreatTree.getGreatTree(block);
-		if (tree == null)
-			return;
-		tree.removeFromBody(block);
-		tree.addDrops(block.getDrops());
-	}
+	/* Suivent les évènements suceptibles d'aggrandir un arbre*/
 
 	@EventHandler(ignoreCancelled = true)
 	public void onTreeGrowing(StructureGrowEvent event)
@@ -31,16 +23,36 @@ public class TreeLife implements Listener
 		for (BlockState b : event.getBlocks())
 			tree.addToBody(b.getBlock());
 	}
+	
+
+	/* Suivent les évènements suceptibles de reduire un arbre*/
+	
 
 	@EventHandler(ignoreCancelled = true)
-	public void onTreeIgniting(BlockIgniteEvent event)
+	public void onBlockBurnEvent(BlockBurnEvent event)
 	{
-		GreatTree tree = GreatTree.getGreatTree(event.getBlock());
+		Block block = event.getBlock();
+		GreatTree tree = GreatTree.getGreatTree(block);
 		if (tree != null)
-		{
-			tree.removeFromBody(event.getBlock());
-			return;
-		}
+			PlayerWoodListener.destroyBlock(tree, block, event);
+	}
+
+	@EventHandler(ignoreCancelled = true)
+	public void onBlockFadeEvent(BlockFadeEvent event)
+	{
+		Block block = event.getBlock();
+		GreatTree tree = GreatTree.getGreatTree(block);
+		if (tree != null)
+			PlayerWoodListener.destroyBlock(tree, block, event);
+	}
+	
+	@EventHandler(ignoreCancelled = true)
+	public void onLeavesDecayEvent(LeavesDecayEvent event)
+	{
+		Block block = event.getBlock();
+		GreatTree tree = GreatTree.getGreatTree(block);
+		if (tree != null)
+			PlayerWoodListener.destroyBlock(tree, block, event);
 	}
 
 	@EventHandler(ignoreCancelled = true)
@@ -48,12 +60,10 @@ public class TreeLife implements Listener
 	{
 		for (Block b : event.blockList())
 		{
-			GreatTree tree = GreatTree.getGreatTree(b);
+			Block block = b;
+			GreatTree tree = GreatTree.getGreatTree(block);
 			if (tree != null)
-			{
-				tree.removeFromBody(b);
-				return;
-			}
+				PlayerWoodListener.destroyBlock(tree, b, event);
 		}
 	}
 }

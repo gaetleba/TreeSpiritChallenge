@@ -33,12 +33,19 @@ public class SBlock implements Serializable
 		return world.getBlockAt(new Location(world,x,y,z));
 	}
 	
+	@Override
 	public boolean equals(Object o)
 	{
 		if (! (o instanceof SBlock))
 			return false;
 		SBlock sb = (SBlock) o;
 		return worldName.equals(sb.worldName) && x==sb.x && y==sb.y && z==sb.z;
+	}
+	
+	@Override
+	public int hashCode()
+	{
+		return (worldName.hashCode()+10*(int)x+100*(int)y+1000*(int)z);
 	}
 	
 	public String toString()
