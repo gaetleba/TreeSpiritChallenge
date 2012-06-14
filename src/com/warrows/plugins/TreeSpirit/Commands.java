@@ -42,6 +42,8 @@ public class Commands implements CommandExecutor
 
 	private boolean stop(Player player)
 	{
-		return GreatTree.destroy(GreatTree.getGreatTree(player).getHeart());
+		if (GreatTree.hasStarted(player))
+			return GreatTree.destroy(GreatTree.getGreatTree(player).getHeart());
+		return false;
 	}
 }

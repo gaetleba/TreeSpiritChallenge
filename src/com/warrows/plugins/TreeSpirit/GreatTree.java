@@ -4,7 +4,9 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.Stack;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -28,7 +30,7 @@ public class GreatTree implements Serializable
 	private HashSet<ItemStack>					drops;
 	private int									score;
 	private SBlock								heart;
-	private HashSet<SBlock>						body;
+	private List<SBlock>						body;
 	private String								playerName;
 
 	/**
@@ -42,7 +44,7 @@ public class GreatTree implements Serializable
 	{
 		this.drops = new HashSet<ItemStack>();
 		this.heart = new SBlock(heart);
-		this.body = new HashSet<SBlock>();
+		this.body = new Stack<SBlock>();
 		this.body.add(this.heart);
 		this.playerName = player.getName();
 		score = 1;
@@ -274,5 +276,10 @@ public class GreatTree implements Serializable
 	public Block getHeart()
 	{
 		return heart.getBukkitBlock();
+	}
+	
+	public String toString()
+	{
+		return ("Joueur: "+playerName);
 	}
 }

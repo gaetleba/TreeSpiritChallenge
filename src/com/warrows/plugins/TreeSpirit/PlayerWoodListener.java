@@ -26,8 +26,9 @@ public class PlayerWoodListener implements Listener
 
 		if (tree == null)
 			return;
-
+		
 		ItemStack item = event.getItem().getItemStack();
+
 		if (item.getType() != Material.LOG
 				&& event.getItem().getItemStack().getType() != Material.SAPLING
 				&& item.getType() != Material.LEAVES)
@@ -35,6 +36,8 @@ public class PlayerWoodListener implements Listener
 			return;
 		}
 
+		TreeSpiritPlugin.log.info("joueur "+player+" arbre "+tree+" item "+item+" est un drop: "+tree.hasDrop(item));
+		
 		if (!tree.hasDrop(item))
 		{
 			event.getItem().remove();
@@ -79,15 +82,24 @@ public class PlayerWoodListener implements Listener
 		}
 
 		Block item = event.getBlock();
+		Player player = event.getPlayer();
+		GreatTree tree = GreatTree.getGreatTree(player);
 
 		/* si le materiel n'est pas vivant, on s'en moque */
 		if (item.getType() != Material.LOG
 				&& item.getType() != Material.SAPLING
 				&& item.getType() != Material.LEAVES)
+		{
+			if (tree.getHeart().getLocation().getBlockX() == item.getLocation()
+					.getBlockX()
+					&& tree.getHeart().getLocation().getBlockZ() == item
+							.getLocation().getBlockZ())
+			{
+				player.sendMessage(Text.getMessage("not-close-heart"));
+				event.setCancelled(true);
+			}
 			return;
-
-		Player player = event.getPlayer();
-		GreatTree tree = GreatTree.getGreatTree(player);
+		}
 
 		/* si le joueur n'a pas d'arbre, on essaye de commencer */
 		if (tree == null && item.getType() == Material.LOG)
@@ -169,11 +181,13 @@ public class PlayerWoodListener implements Listener
 
 	protected static void destroyBlock(GreatTree tree, Block block, Event event)
 	{
-		if (destroyTree(block))
-		{
-			((Cancellable) event).setCancelled(true);
-			return;
-		}
+		TreeSpiritPlugin.log.info("test");
+		if (TreeSpiritPlugin.getConfigInstance().getBoolean("heart-is-vital"))
+			if (destroyTree(block))
+			{
+				((Cancellable) event).setCancelled(true);
+				return;
+			}
 		tree.removeFromBody(block);
 		if (event instanceof BlockBreakEvent)
 			if (block.getType() == Material.LEAVES

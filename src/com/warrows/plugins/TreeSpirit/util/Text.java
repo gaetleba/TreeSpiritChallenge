@@ -10,6 +10,8 @@ public class Text
 	{
 		return;
 	}
+	
+	//TODO not-close-heart
 
 	public static void load(String language)
 	{
@@ -33,6 +35,7 @@ public class Text
 		mappings.put("cannot-start", "You belong to a tree yet.");
 		mappings.put("pvp-disabled", "You can't hurt another people's tree.");
 		mappings.put("heart-destroyed", "Your tree's heart has been destroyed.");
+		mappings.put("not-close-heart", "No dead material where the sap have to pass.");
 
 		return mappings;
 	}
@@ -49,6 +52,7 @@ public class Text
 		mappings.put("cannot-start", "Vous avez déja un arbre.");
 		mappings.put("pvp-disabled", "Vous ne pouvez pas abimer l'arbre d'un autre joueur.");
 		mappings.put("heart-destroyed", "Le coeur de votre arbre a été detruit.");
+		mappings.put("not-close-heart", "Pas de matière morte la ou la sève doit passer.");
 		
 		return mappings;
 	}

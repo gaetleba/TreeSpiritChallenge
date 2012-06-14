@@ -59,6 +59,7 @@ public class TreeSpiritPlugin extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(),
 				this);
 		getServer().getPluginManager().registerEvents(new TreeLife(), this);
+		getServer().getPluginManager().registerEvents(new PlayerHardEventListener(), this);
 
 		/* register commands */
 		Commands commands = new Commands();
