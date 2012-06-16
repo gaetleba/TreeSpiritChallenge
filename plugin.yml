@@ -1,6 +1,6 @@
 name: TreeSpirit
 main: com.warrows.plugins.TreeSpirit.TreeSpiritPlugin
-version: 0.2.1
+version: 0.3.0
 
 # Command Data
 commands:

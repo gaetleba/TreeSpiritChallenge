@@ -26,8 +26,14 @@ public class PlayerWoodListener implements Listener
 
 		if (tree == null)
 			return;
-		
+
 		ItemStack item = event.getItem().getItemStack();
+
+		if (!GreatTree.canPlay(player))
+		{
+			event.setCancelled(true);
+			return;
+		}
 
 		if (item.getType() != Material.LOG
 				&& event.getItem().getItemStack().getType() != Material.SAPLING
@@ -35,9 +41,6 @@ public class PlayerWoodListener implements Listener
 		{
 			return;
 		}
-
-		TreeSpiritPlugin.log.info("joueur "+player+" arbre "+tree+" item "+item+" est un drop: "+tree.hasDrop(item));
-		
 		if (!tree.hasDrop(item))
 		{
 			event.getItem().remove();
@@ -51,6 +54,11 @@ public class PlayerWoodListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerDropEvent(PlayerDropItemEvent event)
 	{
+		if (!GreatTree.canPlay(event.getPlayer()))
+		{
+			event.setCancelled(true);
+			return;
+		}
 		ItemStack item = event.getItemDrop().getItemStack();
 		if (item.getType() != Material.LOG
 				&& item.getType() != Material.SAPLING
@@ -68,21 +76,8 @@ public class PlayerWoodListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBlockPlace(BlockPlaceEvent event)
 	{
-		/*
-		 * Si le joueur n'a pas d'arbre et que la config l'interdit, on annule
-		 * l'event
-		 */
-		if (!GreatTree.hasStarted(event.getPlayer())
-				&& TreeSpiritPlugin.getConfigInstance().getBoolean(
-						"force-to-play-as-a-tree"))
-		{
-			event.setCancelled(true);
-			event.getPlayer().sendMessage(Text.getMessage("not-a-tree"));
-			return;
-		}
-
-		Block item = event.getBlock();
 		Player player = event.getPlayer();
+		Block item = event.getBlock();
 		GreatTree tree = GreatTree.getGreatTree(player);
 
 		/* si le materiel n'est pas vivant, on s'en moque */
@@ -113,6 +108,12 @@ public class PlayerWoodListener implements Listener
 			return;
 		}
 
+		if (!GreatTree.canPlay(player))
+		{
+			event.setCancelled(true);
+			return;
+		}
+		
 		/* On agrandis l'arbre ou on annule */
 		if (tree.isAdjacent(item))
 			tree.addToBody(item);
@@ -123,16 +124,9 @@ public class PlayerWoodListener implements Listener
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerBlockBreak(BlockBreakEvent event)
 	{
-		/*
-		 * Si le joueur n'a pas d'arbre et que la config l'interdit, on annule
-		 * l'event
-		 */
-		if (!GreatTree.hasStarted(event.getPlayer())
-				&& TreeSpiritPlugin.getConfigInstance().getBoolean(
-						"force-to-play-as-a-tree"))
+		if (!GreatTree.canPlay(event.getPlayer()))
 		{
 			event.setCancelled(true);
-			event.getPlayer().sendMessage(Text.getMessage("not-a-tree"));
 			return;
 		}
 
@@ -181,7 +175,6 @@ public class PlayerWoodListener implements Listener
 
 	protected static void destroyBlock(GreatTree tree, Block block, Event event)
 	{
-		TreeSpiritPlugin.log.info("test");
 		if (TreeSpiritPlugin.getConfigInstance().getBoolean("heart-is-vital"))
 			if (destroyTree(block))
 			{
@@ -189,6 +182,8 @@ public class PlayerWoodListener implements Listener
 				return;
 			}
 		tree.removeFromBody(block);
+		if (TreeSpiritPlugin.getConfigInstance().getBoolean("logs-need-heart"))
+		GreatTree.checkBlock(tree, block);
 		if (event instanceof BlockBreakEvent)
 			if (block.getType() == Material.LEAVES
 					&& ((BlockBreakEvent) event).getPlayer().getItemInHand()

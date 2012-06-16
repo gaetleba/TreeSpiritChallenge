@@ -27,7 +27,7 @@ public class GreatTree implements Serializable
 	private static HashSet<String>				newPlayersNames;
 	private static HashSet<SBlock>				hearts;
 
-	private HashSet<ItemStack>					drops;
+	private Stack<ItemStack>					drops;
 	private int									score;
 	private SBlock								heart;
 	private List<SBlock>						body;
@@ -42,7 +42,7 @@ public class GreatTree implements Serializable
 	 */
 	public GreatTree(Block heart, Player player, byte type)
 	{
-		this.drops = new HashSet<ItemStack>();
+		this.drops = new Stack<ItemStack>();
 		this.heart = new SBlock(heart);
 		this.body = new Stack<SBlock>();
 		this.body.add(this.heart);
@@ -232,22 +232,8 @@ public class GreatTree implements Serializable
 
 	public void removeFromBody(Block block)
 	{
-		SBlock a = null;
-		SBlock b = null;
-		for (SBlock sb : greatTreesByBlock.keySet())
-			if (new SBlock(block).equals(sb))
-			{
-				a = sb;
-				continue;
-			}
-		greatTreesByBlock.remove(a);
-		for (SBlock sb : body)
-			if (new SBlock(block).equals(sb))
-			{
-				b = sb;
-				continue;
-			}
-		body.remove(b);
+		greatTreesByBlock.remove(new SBlock(block));
+		body.remove(new SBlock(block));
 		addDrops(block.getDrops());
 		score--;
 	}
@@ -277,9 +263,63 @@ public class GreatTree implements Serializable
 	{
 		return heart.getBukkitBlock();
 	}
-	
+
 	public String toString()
 	{
-		return ("Joueur: "+playerName);
+		return ("Joueur: " + playerName);
+	}
+
+	public static void checkBlock(GreatTree tree, Block origin)
+	{
+		for (BlockFace bf : BlockFace.values())
+		{
+			HashSet<SBlock> toDestroy = new HashSet<SBlock>();
+			SBlock sb = new SBlock(origin.getRelative(bf));
+			tree.checkBlock(sb, toDestroy);
+			for (SBlock sb1 : toDestroy)
+			{
+				Block b = sb1.getBukkitBlock();
+				for (ItemStack item : b.getDrops())
+					tree.addDrop(item);
+				b.breakNaturally();
+				tree.removeFromBody(b);
+			}
+		}
+	}
+
+	private boolean checkBlock(SBlock origin, HashSet<SBlock> tested)
+	{
+		for (BlockFace bf : BlockFace.values())
+		{
+			SBlock sb = new SBlock(origin.getBukkitBlock().getRelative(bf));
+			if (!tested.contains(sb) && isInBody(sb.getBukkitBlock()))
+			{
+				if (heart.equals(sb))
+				{
+					tested.clear();
+					return true;
+				}
+				tested.add(sb);
+				if (checkBlock(sb, tested))
+					return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean canPlay(Player player)
+	{
+		/*
+		 * Si le joueur n'a pas d'arbre et que la config l'interdit, on annule
+		 * l'event
+		 */
+		if (!greatTreesByPlayerName.keySet().contains(player.getName())
+				&& TreeSpiritPlugin.getConfigInstance().getBoolean(
+						"force-to-play-as-a-tree"))
+		{
+			player.sendMessage(Text.getMessage("not-a-tree"));
+			return false;
+		}
+		return true;
 	}
 }

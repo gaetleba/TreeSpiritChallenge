@@ -2,4 +2,5 @@ heart-is-vital: true
 force-to-play-as-a-tree: true
 pvp-enabled: false
 destroy-when-loose: true
+logs-need-heart: true
 language: 'english'
