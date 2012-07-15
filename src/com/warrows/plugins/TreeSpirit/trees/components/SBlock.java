@@ -1,4 +1,4 @@
-package com.warrows.plugins.TreeSpirit.util;
+package com.warrows.plugins.TreeSpirit.trees.components;
 
 import java.io.Serializable;
 
@@ -27,6 +27,14 @@ public class SBlock implements Serializable
 		z = b.getLocation().getBlockZ();
 	}
 	
+	public SBlock(String s)
+	{
+		worldName = s.substring(s.indexOf("worldName: ")+11,s.indexOf("X=")-1);
+		x = (int) Double.parseDouble(s.substring(s.indexOf(" X=")+3,s.indexOf(" Y=")));
+		y = (int) Double.parseDouble(s.substring(s.indexOf(" Y=")+3,s.indexOf(" Z=")));
+		z = (int) Double.parseDouble(s.substring(s.indexOf(" Z=")+3,s.indexOf("]")));
+	}
+	
 	public Block getBukkitBlock()
 	{
 		World world = TreeSpiritPlugin.getServerInstance().getWorld(worldName);
@@ -50,6 +58,6 @@ public class SBlock implements Serializable
 	
 	public String toString()
 	{
-		return (worldName+": X="+x+", Y="+y+", Z="+z);
+		return ("Block [worldName: "+worldName+" X="+x+" Y="+y+" Z="+z+"]");
 	}
 }

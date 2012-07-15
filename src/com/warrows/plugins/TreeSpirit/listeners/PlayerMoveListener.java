@@ -1,4 +1,4 @@
-package com.warrows.plugins.TreeSpirit;
+package com.warrows.plugins.TreeSpirit.listeners;
 
 import java.util.HashMap;
 
@@ -10,6 +10,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
+import com.warrows.plugins.TreeSpirit.trees.GreatTree;
+import com.warrows.plugins.TreeSpirit.trees.TreesData;
+
+
 public class PlayerMoveListener implements Listener
 {
 	private static HashMap<Player, Integer>	stuck	= new HashMap<Player, Integer>();
@@ -18,7 +22,7 @@ public class PlayerMoveListener implements Listener
 	public void onPlayerMoveEvent(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
-		GreatTree tree = GreatTree.getGreatTree(player);
+		GreatTree tree = TreesData.getGreatTree(player);
 		if (tree == null)
 			return;
 
@@ -35,7 +39,7 @@ public class PlayerMoveListener implements Listener
 				if (nbStuck > 5)
 				{
 					Block destination = tree.getHeart();
-					while (destination.getType() != Material.AIR)
+					while (destination.getType() != Material.AIR || destination.getRelative(BlockFace.UP).getType() != Material.AIR)
 						destination = destination.getRelative(BlockFace.UP);
 					player.teleport(destination.getLocation());
 					return;

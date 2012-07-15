@@ -1,20 +1,20 @@
 package com.warrows.plugins.TreeSpirit;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.util.HashSet;
 import java.util.logging.Logger;
 
 import org.bukkit.Server;
 import org.bukkit.configuration.Configuration;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.warrows.plugins.TreeSpirit.util.SBlock;
+import com.warrows.plugins.TreeSpirit.listeners.PlayerServerEventListener;
+import com.warrows.plugins.TreeSpirit.listeners.PlayerMoveListener;
+import com.warrows.plugins.TreeSpirit.listeners.PlayerWoodListener;
+import com.warrows.plugins.TreeSpirit.listeners.TreeListener;
+import com.warrows.plugins.TreeSpirit.trees.TreesData;
 import com.warrows.plugins.TreeSpirit.util.Text;
 
 /**
@@ -25,13 +25,13 @@ import com.warrows.plugins.TreeSpirit.util.Text;
  */
 public class TreeSpiritPlugin extends JavaPlugin
 {
-	protected static Logger			log;
+	public static Logger			log;
 	private static File				directory;
 	private static Server			server;
 	private File					configFile;
 	private static Configuration	config;
+	private static File				treesDirectory;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onEnable()
 	{
@@ -58,8 +58,9 @@ public class TreeSpiritPlugin extends JavaPlugin
 				this);
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(),
 				this);
-		getServer().getPluginManager().registerEvents(new TreeLife(), this);
-		getServer().getPluginManager().registerEvents(new PlayerHardEventListener(), this);
+		getServer().getPluginManager().registerEvents(new TreeListener(), this);
+		getServer().getPluginManager().registerEvents(
+				new PlayerServerEventListener(), this);
 
 		/* register commands */
 		Commands commands = new Commands();
@@ -71,43 +72,16 @@ public class TreeSpiritPlugin extends JavaPlugin
 		/* load datas from files */
 		try
 		{
-			File treesFile = new File(directory, "trees.obj");
-			File newPlayersFile = new File(directory, "newPlayers.obj");
-			File heartsFile = new File(directory, "hearts.obj");
-			HashSet<GreatTree> trees;
-			HashSet<String> newPlayers;
-			HashSet<SBlock> hearts;
+			File newPlayersFile = new File(directory, "newPlayers.list");
+			TreesData.loadNewPlayers(newPlayersFile);
+			treesDirectory = new File(directory, "trees");
 
-			if (treesFile.exists())
-				trees = (HashSet<GreatTree>) new ObjectInputStream(
-						new FileInputStream(treesFile)).readObject();
-			else
-				trees = new HashSet<GreatTree>();
-
-			if (newPlayersFile.exists())
-				newPlayers = (HashSet<String>) new ObjectInputStream(
-						new FileInputStream(newPlayersFile)).readObject();
-			else
-				newPlayers = new HashSet<String>();
-
-			if (heartsFile.exists())
-				hearts = (HashSet<SBlock>) new ObjectInputStream(
-						new FileInputStream(heartsFile)).readObject();
-			else
-				hearts = new HashSet<SBlock>();
-
-			GreatTree.initialize((HashSet<GreatTree>) trees,
-					(HashSet<String>) newPlayers, hearts);
-		} catch (FileNotFoundException e)
-		{
-			e.printStackTrace();
-		} catch (IOException e)
-		{
-			e.printStackTrace();
-		} catch (ClassNotFoundException e)
+		} catch (Exception e)
 		{
 			e.printStackTrace();
 		}
+
+		/* getPermissions */
 
 		log.info("TreeSpirit enabled");
 	}
@@ -122,13 +96,13 @@ public class TreeSpiritPlugin extends JavaPlugin
 	{
 		try
 		{
-			(new ObjectOutputStream(new FileOutputStream(new File(directory,
-					"trees.obj")))).writeObject(GreatTree.saveTrees());
-			(new ObjectOutputStream(new FileOutputStream(new File(directory,
-					"newPlayers.obj"))))
-					.writeObject(GreatTree.saveNewPlayers());
-			(new ObjectOutputStream(new FileOutputStream(new File(directory,
-					"hearts.obj")))).writeObject(GreatTree.saveHearts());
+			File treesDir = new File(directory, "trees");
+			if (!treesDir.exists())
+				treesDir.createNewFile();
+			for (Player p : server.getOnlinePlayers())
+				TreesData.saveGreatTree(p);
+			File newPlayersFile = new File(directory, "newPlayers.list");
+			TreesData.saveNewPlayers(newPlayersFile);
 		} catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
@@ -148,5 +122,10 @@ public class TreeSpiritPlugin extends JavaPlugin
 	public static Server getServerInstance()
 	{
 		return server;
+	}
+
+	public static File getTreesDirectory()
+	{
+		return treesDirectory;
 	}
 }
