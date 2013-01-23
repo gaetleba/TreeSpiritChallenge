@@ -125,13 +125,13 @@ public class TreesData
 		player.getInventory().clear();
 		newPlayersNames.add(player.getName());
 		player.getInventory().addItem(
-				new ItemStack(Material.LOG, 1, (short) 0, (byte) 0));
+		        new ItemStack(Material.LOG, 1, (short) 0));
 		player.getInventory().addItem(
-				new ItemStack(Material.LOG, 1, (short) 0, (byte) 1));
+		        new ItemStack(Material.LOG, 1, (short) 1));
 		player.getInventory().addItem(
-				new ItemStack(Material.LOG, 1, (short) 0, (byte) 2));
+		        new ItemStack(Material.LOG, 1, (short) 2));
 		player.getInventory().addItem(
-				new ItemStack(Material.LOG, 1, (short) 0, (byte) 3));
+		        new ItemStack(Material.LOG, 1, (short) 3));
 	}
 
 	public static boolean canPlay(Player player)
