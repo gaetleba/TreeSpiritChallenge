@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 
 import com.warrows.plugins.TreeSpirit.TreeSpiritPlugin;
 
-public class SBlock implements Serializable
+public class TreeBlock implements Serializable
 {
 	/**
 	 * 
@@ -18,16 +18,18 @@ public class SBlock implements Serializable
 	private double x;
 	private double y;
 	private double z;
+	private TreeBlock neigh[];
 	
-	public SBlock(Block b)
+	public TreeBlock(Block b)
 	{
 		worldName = b.getWorld().getName();
 		x = b.getLocation().getBlockX();
 		y = b.getLocation().getBlockY();
 		z = b.getLocation().getBlockZ();
+		neigh = new TreeBlock[6];
 	}
 	
-	public SBlock(String s)
+	public TreeBlock(String s)
 	{
 		worldName = s.substring(s.indexOf("worldName: ")+11,s.indexOf("X=")-1);
 		x = (int) Double.parseDouble(s.substring(s.indexOf(" X=")+3,s.indexOf(" Y=")));
@@ -44,9 +46,9 @@ public class SBlock implements Serializable
 	@Override
 	public boolean equals(Object o)
 	{
-		if (! (o instanceof SBlock))
+		if (! (o instanceof TreeBlock))
 			return false;
-		SBlock sb = (SBlock) o;
+		TreeBlock sb = (TreeBlock) o;
 		return worldName.equals(sb.worldName) && x==sb.x && y==sb.y && z==sb.z;
 	}
 	

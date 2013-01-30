@@ -16,10 +16,8 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
-import com.warrows.plugins.TreeSpirit.CoOpLogsHandler;
 import com.warrows.plugins.TreeSpirit.TreeSpiritPlugin;
 import com.warrows.plugins.TreeSpirit.trees.GreatTree;
-import com.warrows.plugins.TreeSpirit.trees.GreatTreeCoop;
 import com.warrows.plugins.TreeSpirit.trees.TreesData;
 import com.warrows.plugins.TreeSpirit.util.Text;
 
@@ -104,7 +102,7 @@ public class PlayerWoodListener implements Listener
 					if ((item.getRelative(BlockFace.DOWN).getType() == Material.DIRT || item
 							.getRelative(BlockFace.DOWN).getType() == Material.GRASS))
 					{
-						createTree(player, item);
+						createTree(player, item, item.getData());
 						return;
 					} else
 					{
@@ -222,42 +220,14 @@ public class PlayerWoodListener implements Listener
 	 * SUIVENT LES METHODES UTILITAIRES
 	 */
 
-	private void createTree(Player player, Block heart)
-	{
-		byte type = heart.getData();
-		if ("logs".equals(TreeSpiritPlugin.getConfigInstance().getString(
-				"co-op-type")))
-		{
-			GreatTreeCoop coopTree = CoOpLogsHandler.getTreeByType(type);
-			if (coopTree != null)
-			{
-				// joining a co-op tree
-				player.getInventory().clear();
-				player.getInventory().addItem(
-						new ItemStack(Material.LOG, 3, type));
-				player.getInventory().addItem(
-						new ItemStack(Material.SAPLING, 1, type));
-				coopTree.add(player);
-				player.teleport(coopTree.getTop());
-				player.sendMessage(Text.getMessage("co-op-log-new-player"));
-				return;
-			}
-		}
-		createClassicTree(player, heart, type);
-	}
-
-	private void createClassicTree(Player player, Block heart, byte type)
+	private void createTree(Player player, Block heart, byte type)
 	{
 		// starting a tree
 		player.getInventory().clear();
 		player.getInventory().addItem(new ItemStack(Material.LOG, 5, type));
 		player.getInventory().addItem(new ItemStack(Material.SAPLING, 2, type));
 		GreatTree tree;
-		if ("logs".equals(TreeSpiritPlugin.getConfigInstance().getString(
-				"co-op-type")))
-			tree = new GreatTreeCoop(heart, player, type);
-		else
-			tree = new GreatTree(heart, player.getName(), type);
+		tree = new GreatTree(heart, player.getName(), type);
 		player.teleport(tree.getTop());
 		player.setGameMode(GameMode.SURVIVAL);
 		player.setAllowFlight(true);

@@ -17,17 +17,16 @@ import org.bukkit.event.Event;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.inventory.ItemStack;
 
-import com.warrows.plugins.TreeSpirit.CoOpLogsHandler;
 import com.warrows.plugins.TreeSpirit.TreeSpiritPlugin;
-import com.warrows.plugins.TreeSpirit.trees.components.SBlock;
+import com.warrows.plugins.TreeSpirit.trees.components.TreeBlock;
 import com.warrows.plugins.TreeSpirit.util.Text;
 
 public class TreesData
 {
-	protected static HashMap<SBlock, GreatTree>	greatTreesByBlock		= new HashMap<SBlock, GreatTree>();
+	protected static HashMap<TreeBlock, GreatTree>	greatTreesByBlock		= new HashMap<TreeBlock, GreatTree>();
 	protected static HashMap<String, GreatTree>	greatTreesByPlayerName	= new HashMap<String, GreatTree>();
 	protected static HashSet<String>			newPlayersNames			= new HashSet<String>();
-	protected static HashSet<SBlock>			hearts					= new HashSet<SBlock>();
+	protected static HashSet<TreeBlock>			hearts					= new HashSet<TreeBlock>();
 
 	public static boolean isNew(Player player)
 	{
@@ -41,7 +40,7 @@ public class TreesData
 
 	public static boolean isHeart(Block block)
 	{
-		return hearts.contains(new SBlock(block));
+		return hearts.contains(new TreeBlock(block));
 	}
 
 	public static HashSet<String> saveNewPlayers()
@@ -49,7 +48,7 @@ public class TreesData
 		return newPlayersNames;
 	}
 
-	public static HashSet<SBlock> saveHearts()
+	public static HashSet<TreeBlock> saveHearts()
 	{
 		return hearts;
 	}
@@ -66,7 +65,7 @@ public class TreesData
 
 	public static GreatTree getGreatTree(Block block)
 	{
-		return greatTreesByBlock.get(new SBlock(block));
+		return greatTreesByBlock.get(new TreeBlock(block));
 	}
 
 	public static boolean hasStarted(Player player)
@@ -80,7 +79,7 @@ public class TreesData
 	public static boolean destroy(GreatTree tree)
 	{
 		Set<Block> set = new HashSet<Block>();
-		for (SBlock sb : tree.body)
+		for (TreeBlock sb : tree.body)
 		{
 			set.add(sb.getBukkitBlock());
 		}
@@ -88,13 +87,13 @@ public class TreesData
 				"destroy-when-loose");
 		for (Block b : set)
 		{
-			if (hearts.contains(new SBlock(b)))
+			if (hearts.contains(new TreeBlock(b)))
 			{
 				if (destroy)
 					b.setType(Material.AIR);
 				else
 					b.setType(Material.OBSIDIAN);
-				hearts.remove(new SBlock(b));
+				hearts.remove(new TreeBlock(b));
 			} else
 			{
 				if (destroy)
@@ -113,9 +112,6 @@ public class TreesData
 		player.sendMessage(Text.getMessage("heart-destroyed"));
 		player.getInventory().clear();
 		player.damage(200);
-		if ("logs".equals(TreeSpiritPlugin.getConfigInstance().getString(
-				"co-op-type")))
-			CoOpLogsHandler.remove(tree);
 		return true;
 	}
 

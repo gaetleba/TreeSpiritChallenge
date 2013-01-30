@@ -12,15 +12,15 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import com.warrows.plugins.TreeSpirit.trees.components.SBlock;
+import com.warrows.plugins.TreeSpirit.trees.components.TreeBlock;
 import com.warrows.plugins.TreeSpirit.trees.components.TreeBody;
 
 public class GreatTree
 {
 
 	protected Stack<ItemStack>	drops;
-	private SBlock				heart;
-	TreeBody<SBlock>			body;
+	private TreeBlock				heart;
+	TreeBody<TreeBlock>			body;
 	String						playerName;
 	private byte				type;
 
@@ -34,8 +34,8 @@ public class GreatTree
 	public GreatTree(Block heart, String player, byte type)
 	{
 		this.drops = new Stack<ItemStack>();
-		this.heart = new SBlock(heart);
-		this.body = new TreeBody<SBlock>();
+		this.heart = new TreeBlock(heart);
+		this.body = new TreeBody<TreeBlock>();
 		this.body.add(this.heart);
 		this.playerName = player;
 		this.type = type;
@@ -56,27 +56,13 @@ public class GreatTree
 	{
 		String[] data = s.split("\n");
 		String player = data[0].substring(data[0].indexOf(": ") + 2);
-		boolean coop = Boolean.parseBoolean(data[1].substring(data[1]
-				.indexOf(": ") + 2));
-		if (coop)
-		{
-			GreatTree tree = TreesData.getGreatTree(player);
-			if (tree == null)
-			{
-				TreesData.loadGreatTree(player);
-				tree = TreesData.getGreatTree(player);
-			}
-			if (player == playerConnecting)
-				tree.update();
-			return;
-		}
 		this.drops = new Stack<ItemStack>();
-		this.heart = new SBlock(data[1].substring(data[1].indexOf(": ") + 2));
-		this.body = new TreeBody<SBlock>();
+		this.heart = new TreeBlock(data[1].substring(data[1].indexOf(": ") + 2));
+		this.body = new TreeBody<TreeBlock>();
 		String bodyStr = s.substring(s.indexOf("{"), s.indexOf("}"));
 		for (String sBlock : bodyStr.split(","))
 		{
-			SBlock sb = new SBlock(sBlock);
+			TreeBlock sb = new TreeBlock(sBlock);
 			body.add(sb);
 			TreesData.greatTreesByBlock.put(sb, this);
 		}
@@ -90,28 +76,24 @@ public class GreatTree
 
 	/**
 	 * Ce toString est utilisé pour ecrire les arbres dans des fichiers plats et
-	 * ainsi sauver les donné huan-readable.
+	 * ainsi sauver les donné human-readable.
 	 */
 	public String toSave()
 	{
-		boolean coop = this instanceof GreatTreeCoop;
 		String s = "";
 		s += ("Founder: " + playerName + "\n");
 		s += ("Heart: " + heart.toString() + "\n");
 		s += ("Type: " + type + "\n");
-		s += ("Coop: " + coop + "\n");
 		s += ("Body: " + body + "\n");
 		return s;
 	}
 
 	public String toString()
 	{
-		boolean coop = this instanceof GreatTreeCoop;
 		String s = "";
 		s += ("Founder: " + playerName + "\n");
 		s += ("Heart: " + heart.toString() + "\n");
 		s += ("Type: " + type + "\n");
-		s += ("Coop: " + coop + "\n");
 		s += ("BlocksNb: " + getScore() + "\n");
 		return s;
 	}
@@ -133,9 +115,9 @@ public class GreatTree
 
 	private boolean isInBody(Block block)
 	{
-		for (SBlock bodyPart : body)
+		for (TreeBlock bodyPart : body)
 		{
-			if (bodyPart.equals(new SBlock(block)))
+			if (bodyPart.equals(new TreeBlock(block)))
 				return true;
 		}
 		return false;
@@ -189,14 +171,14 @@ public class GreatTree
 
 	public void addToBody(Block block)
 	{
-		TreesData.greatTreesByBlock.put(new SBlock(block), this);
-		body.add(new SBlock(block));
+		TreesData.greatTreesByBlock.put(new TreeBlock(block), this);
+		body.add(new TreeBlock(block));
 	}
 
 	public void removeFromBody(Block block, int drop)
 	{
-		TreesData.greatTreesByBlock.remove(new SBlock(block));
-		body.remove(new SBlock(block));
+		TreesData.greatTreesByBlock.remove(new TreeBlock(block));
+		body.remove(new TreeBlock(block));
 		switch (drop)
 		{
 			/* drop = 0 : drop normal
@@ -231,26 +213,26 @@ public class GreatTree
 	{
 		for (BlockFace bf : BlockFace.values())
 		{
-			HashSet<SBlock> toDestroy = new HashSet<SBlock>();
-			SBlock sb = new SBlock(origin.getRelative(bf));
+			HashSet<TreeBlock> toDestroy = new HashSet<TreeBlock>();
+			TreeBlock sb = new TreeBlock(origin.getRelative(bf));
 			tree.checkBlock(sb, toDestroy);
-			for (SBlock sb1 : toDestroy)
+			for (TreeBlock sb1 : toDestroy)
 			{
 				tree.removeFromBody(sb1.getBukkitBlock(), 0);
 			}
 		}
 	}
 
-	public TreeBody<SBlock> getBody()
+	public TreeBody<TreeBlock> getBody()
 	{
 		return body;
 	}
 
-	private boolean checkBlock(SBlock origin, HashSet<SBlock> tested)
+	private boolean checkBlock(TreeBlock origin, HashSet<TreeBlock> tested)
 	{
 		for (BlockFace bf : BlockFace.values())
 		{
-			SBlock sb = new SBlock(origin.getBukkitBlock().getRelative(bf));
+			TreeBlock sb = new TreeBlock(origin.getBukkitBlock().getRelative(bf));
 			if (!tested.contains(sb) && isInBody(sb.getBukkitBlock()))
 			{
 				if (heart.equals(sb))
@@ -281,13 +263,7 @@ public class GreatTree
 	{
 		return this.getPlayerName().equals(player.getName());
 	}
-
-	public GreatTreeCoop update()
-	{
-		GreatTreeCoop retour = new GreatTreeCoop(this);
-		return retour;
-	}
-
+	
 	public byte getType()
 	{
 		return type;
