@@ -65,6 +65,8 @@ public class TreeSpiritPlugin extends JavaPlugin
 		getServer().getPluginManager().registerEvents(new PlayerMoveListener(), this);
 		getServer().getPluginManager().registerEvents(new BlockPlaceListener(),
 				this);
+		getServer().getPluginManager().registerEvents(new BlockBreakListener(),
+				this);
 	}
 
 	private void doBasisLoading()

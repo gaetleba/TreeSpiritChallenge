@@ -11,7 +11,7 @@ public class Woody
 	{
 		material = block.getType();
 	}
-	
+
 	public boolean isWoody()
 	{
 		if (material == Material.LOG)

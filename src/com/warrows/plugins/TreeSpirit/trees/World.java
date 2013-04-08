@@ -57,4 +57,9 @@ public class World implements Serializable
 	{
 		blocksMap.put(block.getLocation(), block);
 	}
+
+	public void removeBlockAt(Location location)
+	{
+		blocksMap.remove(location);
+	}
 }

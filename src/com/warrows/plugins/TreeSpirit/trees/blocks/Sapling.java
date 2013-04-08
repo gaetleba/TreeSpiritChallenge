@@ -5,7 +5,7 @@ import org.bukkit.block.Block;
 
 import com.warrows.plugins.TreeSpirit.trees.World;
 
-public class Sapling extends TreeBlock
+public class Sapling extends TreeBlock implements Popable
 {
 	private static final long serialVersionUID = -5242640187336269964L;
 
@@ -25,5 +25,26 @@ public class Sapling extends TreeBlock
 		{
 			return new Sapling(loc);
 		}
+	}
+
+	@Override
+	public void pop()
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void removeParent(Solid parent)
+	{
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void addParent(Solid parent)
+	{
+		// TODO Auto-generated method stub
+		
 	}
 }

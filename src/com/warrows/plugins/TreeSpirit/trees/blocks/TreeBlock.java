@@ -8,7 +8,7 @@ public abstract class TreeBlock implements Serializable
 {
 	private static final long	serialVersionUID	= -1017338353473611647L;
 	
-	private Location location;
+	protected Location location;
 	
 	protected TreeBlock(Location loc)
 	{

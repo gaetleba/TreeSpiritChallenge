@@ -62,7 +62,7 @@ public class BlockPlaceListener implements Listener
 			break;
 		default:
 			treeBlock = new CrapBlock(block.getLocation());
-			return treeBlock;
+			break;
 		}
 		return treeBlock;
 	}
