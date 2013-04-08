@@ -10,45 +10,46 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerMoveEvent;
 
-import com.warrows.plugins.TreeSpirit.trees.GreatTree;
-import com.warrows.plugins.TreeSpirit.trees.TreesData;
-
+import com.warrows.plugins.TreeSpirit.trees.Tree;
+import com.warrows.plugins.TreeSpirit.trees.World;
 
 public class PlayerMoveListener implements Listener
 {
-	private static HashMap<Player, Integer>	stuck	= new HashMap<Player, Integer>();
+	private static HashMap<Player, Integer> stuck = new HashMap<Player, Integer>();
 
 	@EventHandler(ignoreCancelled = true)
 	public void onPlayerMoveEvent(PlayerMoveEvent event)
 	{
 		Player player = event.getPlayer();
-		GreatTree tree = TreesData.getGreatTree(player);
+		Tree tree = World.getInstance().getTreeOf(player);
 		if (tree == null)
 			return;
 
 		if (tree.isAtProximity(event.getTo().getBlock()))
 		{
 			stuck.remove(player);
-		} else
-		{
-			if (stuck.get(player) == null)
-				stuck.put(player, 0);
-			else
-			{
-				int nbStuck = 1 + (Integer) stuck.get(player);
-				if (nbStuck > 5)
-				{
-					Block destination = tree.getHeart();
-					while (destination.getType() != Material.AIR || destination.getRelative(BlockFace.UP).getType() != Material.AIR)
-						destination = destination.getRelative(BlockFace.UP);
-					player.teleport(destination.getLocation());
-					return;
-				}
-				stuck.put(player, nbStuck);
-
-			}
-			event.setCancelled(true);
-			player.teleport(event.getFrom());
+			return;
 		}
+
+		if (stuck.get(player) == null)
+			stuck.put(player, 0);
+		else
+		{
+			int nbStuck = 1 + (Integer) stuck.get(player);
+			if (nbStuck > 5)
+			{
+				Block destination = tree.getHeart().getLocation().getBlock();
+				while (destination.getType() != Material.AIR
+						|| destination.getRelative(BlockFace.UP).getType() != Material.AIR)
+					destination = destination.getRelative(BlockFace.UP);
+				player.teleport(destination.getLocation());
+				return;
+			}
+			stuck.put(player, nbStuck);
+
+		}
+		event.setCancelled(true);
+		player.teleport(event.getFrom());
+
 	}
 }
