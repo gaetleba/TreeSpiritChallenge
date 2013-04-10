@@ -42,7 +42,7 @@ public class Leaves extends TreeBlock implements Popable
 	}
 
 	@Override
-	public void addParent(Solid parent)
+	public void setParent(Solid parent)
 	{
 		// TODO Auto-generated method stub
 		
